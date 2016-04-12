@@ -67,15 +67,13 @@ class KNearestNeighbor(object):
     for i in xrange(num_test):
       for j in xrange(num_train):
         #####################################################################
-        # TODO:                                                             #
         # Compute the l2 distance between the ith test point and the jth    #
         # training point, and store the result in dists[i, j]. You should   #
         # not use a loop over dimension.                                    #
         #####################################################################
-        pass
 
-
-
+        diff = self.X_train[j] - X[i]
+        dists[i, j] = np.sum(np.square(diff))
 
         #####################################################################
         #                       END OF YOUR CODE                            #
@@ -94,11 +92,13 @@ class KNearestNeighbor(object):
     dists = np.zeros((num_test, num_train))
     for i in xrange(num_test):
       #######################################################################
-      # TODO:                                                               #
       # Compute the l2 distance between the ith test point and all training #
       # points, and store the result in dists[i, :].                        #
       #######################################################################
-      pass
+
+      diffs = self.X_train - X[i]
+      dists[i, :] = np.sum(np.square(diffs), axis=1)
+
       #######################################################################
       #                         END OF YOUR CODE                            #
       #######################################################################
@@ -113,9 +113,9 @@ class KNearestNeighbor(object):
     """
     num_test = X.shape[0]
     num_train = self.X_train.shape[0]
+    dimensions = X.shape[1]
     dists = np.zeros((num_test, num_train))
     #########################################################################
-    # TODO:                                                                 #
     # Compute the l2 distance between all test points and all training      #
     # points without using any explicit loops, and store the result in      #
     # dists.                                                                #
@@ -126,7 +126,12 @@ class KNearestNeighbor(object):
     # HINT: Try to formulate the l2 distance using matrix multiplication    #
     #       and two broadcast sums.                                         #
     #########################################################################
-    pass
+
+    diffs = self.X_train.reshape((1, num_train, dimensions)) - \
+      X.reshape((num_test, 1, dimensions))
+
+    dists = np.sum(np.square(diffs), axis=2)
+
     #########################################################################
     #                         END OF YOUR CODE                              #
     #########################################################################
