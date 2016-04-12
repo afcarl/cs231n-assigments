@@ -1,4 +1,7 @@
+from collections import Counter
+
 import numpy as np
+
 
 class KNearestNeighbor(object):
   """ a kNN classifier with L2 distance """
@@ -157,21 +160,24 @@ class KNearestNeighbor(object):
       # the ith test point.
       closest_y = []
       #########################################################################
-      # TODO:                                                                 #
       # Use the distance matrix to find the k nearest neighbors of the ith    #
       # testing point, and use self.y_train to find the labels of these       #
       # neighbors. Store these labels in closest_y.                           #
       # Hint: Look up the function numpy.argsort.                             #
       #########################################################################
-      pass
+
+      closest_y_indices = np.argsort(dists[i, :])[:k]
+      closest_y = self.y_train[closest_y_indices]
+
       #########################################################################
-      # TODO:                                                                 #
       # Now that you have found the labels of the k nearest neighbors, you    #
       # need to find the most common label in the list closest_y of labels.   #
       # Store this label in y_pred[i]. Break ties by choosing the smaller     #
       # label.                                                                #
       #########################################################################
-      pass
+
+      most_common_tuple = Counter(closest_y).most_common(1)[0]
+      y_pred[i] = most_common_tuple[0]
       #########################################################################
       #                           END OF YOUR CODE                            #
       #########################################################################
