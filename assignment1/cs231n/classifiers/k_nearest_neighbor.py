@@ -116,7 +116,6 @@ class KNearestNeighbor(object):
     """
     num_test = X.shape[0]
     num_train = self.X_train.shape[0]
-    dimensions = X.shape[1]
     dists = np.zeros((num_test, num_train))
     #########################################################################
     # Compute the l2 distance between all test points and all training      #
@@ -130,10 +129,13 @@ class KNearestNeighbor(object):
     #       and two broadcast sums.                                         #
     #########################################################################
 
-    diffs = self.X_train.reshape((1, num_train, dimensions)) - \
-      X.reshape((num_test, 1, dimensions))
+    X_train_squared = np.sum(np.square(self.X_train), axis=1)
+    X_squared = np.sum(np.square(X), axis=1)
+    X_squared_vertical = X_squared.reshape([num_test, 1])
 
-    dists = np.sum(np.square(diffs), axis=2)
+    matmul = np.matmul(X, np.transpose(self.X_train))
+
+    dists = X_train_squared + X_squared_vertical - (2 * matmul)
 
     #########################################################################
     #                         END OF YOUR CODE                              #
