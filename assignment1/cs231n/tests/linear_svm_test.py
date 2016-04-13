@@ -1,6 +1,7 @@
 
 import numpy as np
 import pytest
+from numpy.testing import assert_allclose
 
 from cs231n.classifiers import svm_loss_naive
 """
@@ -39,23 +40,19 @@ def W():
   """
   - W: A numpy array of shape (D, C) containing weights.
   """
+  return np.zeros((4, 2))
+
+@pytest.fixture
+def desired_gradient():
   return np.array([
-    [0., 23.],
-    [13., 1.],
-    [9., 6.],
-    [6., 3.],
+    [ 2.      , -2.      ],
+    [ 1.666667, -1.666667],
+    [ 2.      , -2.      ],
+    [ 1.666667, -1.666667]
   ])
 
-def desired_gradient():
-  return np.array(
-    [
-      [1, 2, 2, 1],
-      [4, 3, 4, 4],
-      [3, 4, 4, 2],
-    ])
-
-def test_svm_loss_naive(W, X, y):
+def test_svm_loss_naive(W, X, y, desired_gradient):
   loss, gradient = svm_loss_naive(W, X, y, reg=1.0)
-  assert loss == 430.5
+  assert loss == 1
 
-  assert np.array_equal(desired_gradient, gradient)
+  assert_allclose(desired_gradient, gradient, 0.00001)

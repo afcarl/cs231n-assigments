@@ -26,33 +26,41 @@ def svm_loss_naive(W, X, y, reg):
   # compute the loss and the gradient
   num_classes = W.shape[1]
   num_train = X.shape[0]
+
   loss = 0.0
   for i in xrange(num_train):
-    scores = X[i].dot(W)
-    correct_class_score = scores[y[i]]
+    x = X[i]
+    scores = x.dot(W)
+    correct_class = y[i]
+    correct_class_score = scores[correct_class]
+    num_classes_beyond_margin = 0
     for j in xrange(num_classes):
-      if j == y[i]:
-        continue
-      margin = scores[j] - correct_class_score + 1 # note delta = 1
-      if margin > 0:
-        loss += margin
+      # Compute the loss
 
-  # Right now the loss is a sum over all training examples, but we want it
-  # to be an average instead so we divide by num_train.
+      if j == correct_class:
+        continue
+
+      margin = scores[j] - correct_class_score + 1 # note delta = 1
+      print margin
+      if margin > 0:
+        # This incorrect class did not meet the desired margin
+        # So we increase the loss
+        loss += margin
+        num_classes_beyond_margin += 1
+
+        # And we update the gradient for this class
+        dW[:, j] += 1 * x
+
+    # Update the gradient for the weights that feed the correct class
+    dW[:, correct_class] -= num_classes_beyond_margin * x
+
+  # Right now the loss and dW are sums over all training examples, but we
+  # want them to be an average instead so we divide by num_train.
   loss /= num_train
+  dW /= num_train
 
   # Add regularization to the loss.
   loss += 0.5 * reg * np.sum(W * W)
-
-  #############################################################################
-  # TODO:                                                                     #
-  # Compute the gradient of the loss function and store it dW.                #
-  # Rather that first computing the loss and then computing the derivative,   #
-  # it may be simpler to compute the derivative at the same time that the     #
-  # loss is being computed. As a result you may need to modify some of the    #
-  # code above to compute the gradient.                                       #
-  #############################################################################
-
 
   return loss, dW
 
