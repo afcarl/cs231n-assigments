@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 from numpy.testing import assert_allclose
 
-from cs231n.classifiers import svm_loss_naive
+from cs231n.classifiers import svm_loss_naive, svm_loss_vectorized
 """
  N = 3
  C = 2
@@ -53,6 +53,13 @@ def desired_gradient():
 
 def test_svm_loss_naive(W, X, y, desired_gradient):
   loss, gradient = svm_loss_naive(W, X, y, reg=1.0)
+  assert loss == 1
+
+  assert_allclose(desired_gradient, gradient, 0.00001)
+
+
+def test_svm_loss_vectorized(W, X, y, desired_gradient):
+  loss, gradient = svm_loss_vectorized(W, X, y, reg=1.0)
   assert loss == 1
 
   assert_allclose(desired_gradient, gradient, 0.00001)

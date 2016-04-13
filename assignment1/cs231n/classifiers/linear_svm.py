@@ -58,13 +58,12 @@ def svm_loss_naive(W, X, y, reg):
   loss /= num_train
   dW /= num_train
 
-  # Add regularization to the loss and the gradient. TODO
+  # Add regularization to the loss and the gradient.
   loss += 0.5 * reg * np.sum(np.square(W))
-  
-  dW += reg * W
 
-  # for each weight Wij, the partial derivative dWij of the loss function above is:
-  # 0.5 * reg * 2.0 * Wij
+  # For each weight Wij, the partial derivative dWij of the loss function above is:
+  #     0.5 * reg * 2.0 * Wij
+  dW += reg * W
 
   return loss, dW
 
