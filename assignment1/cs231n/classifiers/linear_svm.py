@@ -41,7 +41,6 @@ def svm_loss_naive(W, X, y, reg):
         continue
 
       margin = scores[j] - correct_class_score + 1 # note delta = 1
-      print margin
       if margin > 0:
         # This incorrect class did not meet the desired margin
         # So we increase the loss
