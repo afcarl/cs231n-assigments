@@ -1,5 +1,7 @@
-import numpy as np
 from random import shuffle
+
+import numpy as np
+
 
 def svm_loss_naive(W, X, y, reg):
   """
