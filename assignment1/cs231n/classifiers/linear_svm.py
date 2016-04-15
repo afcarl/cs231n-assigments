@@ -103,20 +103,16 @@ def svm_loss_vectorized(W, X, y, reg):
   # Put 1 in for each [training point, class] pair above the margin
   classes_beyond_margin = (margins > 0).astype(float) # shape (N, C)
 
-  # Count the classes above the margin
+  # For the correct classes, replace the value with the count the count
+  # of classes above the margin
   num_classes_beyond_margin = np.sum((classes_beyond_margin), axis=1) # shape N
-
   classes_beyond_margin[correct_classes] = -num_classes_beyond_margin
 
+  # Dot-product each row with our X
   dW = X.T.dot(classes_beyond_margin)
+
   dW /= num_train
-
   dW += reg * W
-
-  # Update the gradient for the weights that feed the correct class
-  # dW[:, correct_class] -= num_classes_beyond_margin * x
-
-
 
   #############################################################################
   #                             END OF YOUR CODE                              #
