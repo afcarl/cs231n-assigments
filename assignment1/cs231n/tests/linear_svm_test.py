@@ -36,30 +36,71 @@ def y():
     ])
 
 @pytest.fixture
-def W():
+def W_zeros():
   """
   - W: A numpy array of shape (D, C) containing weights.
   """
   return np.zeros((4, 2))
 
 @pytest.fixture
-def desired_gradient():
-  return np.array([
-    [ 2.      , -2.      ],
-    [ 1.666667, -1.666667],
-    [ 2.      , -2.      ],
-    [ 1.666667, -1.666667]
+def W_ones():
+  """
+  - W: A numpy array of shape (D, C) containing weights.
+  """
+  return np.zeros((4, 2)) + 1
+
+
+def test_svm_loss_naive(W_zeros, X, y):
+  loss, gradient = svm_loss_naive(W_zeros, X, y, reg=1.0)
+  assert loss == 1
+
+  desired_gradient = np.array([
+    [2., -2.],
+    [1.666667, -1.666667],
+    [2., -2.],
+    [1.666667, -1.666667]
   ])
 
-def test_svm_loss_naive(W, X, y, desired_gradient):
-  loss, gradient = svm_loss_naive(W, X, y, reg=1.0)
-  assert loss == 1
+  assert_allclose(desired_gradient, gradient, 0.00001)
+
+def test_svm_loss_naive_with_weights(W_ones, X, y):
+  loss, gradient = svm_loss_naive(W_ones, X, y, reg=1.0)
+  assert loss == 5.0
+
+  desired_gradient = np.array([
+    [3., -1.],
+    [2.666667, -0.666667],
+    [3., -1.],
+    [2.666667, -0.666667]])
+
 
   assert_allclose(desired_gradient, gradient, 0.00001)
 
 
-def test_svm_loss_vectorized(W, X, y, desired_gradient):
-  loss, gradient = svm_loss_vectorized(W, X, y, reg=1.0)
+def test_svm_loss_vectorized(W_zeros, X, y):
+  loss, gradient = svm_loss_vectorized(W_zeros, X, y, reg=1.0)
   assert loss == 1
 
+  desired_gradient = np.array([
+    [2., -2.],
+    [1.666667, -1.666667],
+    [2., -2.],
+    [1.666667, -1.666667]
+  ])
+
   assert_allclose(desired_gradient, gradient, 0.00001)
+
+
+
+def test_svm_loss_vectorized_with_weights(W_ones, X, y):
+  loss, gradient = svm_loss_vectorized(W_ones, X, y, reg=1.0)
+  assert loss == 5.0
+  #
+  # desired_gradient = np.array([
+  #   [3., -1.],
+  #   [2.666667, -0.666667],
+  #   [3., -1.],
+  #   [2.666667, -0.666667]])
+  #
+  #
+  # assert_allclose(desired_gradient, gradient, 0.00001)

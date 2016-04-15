@@ -33,7 +33,6 @@ def svm_loss_naive(W, X, y, reg):
     scores = x.dot(W)
     correct_class = y[i]
     correct_class_score = scores[correct_class]
-    num_classes_beyond_margin = 0
     for j in xrange(num_classes):
       # Compute the loss
 
@@ -42,16 +41,15 @@ def svm_loss_naive(W, X, y, reg):
 
       margin = scores[j] - correct_class_score + 1 # note delta = 1
       if margin > 0:
-        # This incorrect class did not meet the desired margin
+        incorrect_class_that_did_not_meet_margin = j
         # So we increase the loss
         loss += margin
-        num_classes_beyond_margin += 1
-
+        dW[:, correct_class] -= x
         # And we update the gradient for this class
-        dW[:, j] += 1 * x
+        dW[:, incorrect_class_that_did_not_meet_margin] += x
 
     # Update the gradient for the weights that feed the correct class
-    dW[:, correct_class] -= num_classes_beyond_margin * x
+
 
   # Right now the loss and dW are sums over all training examples, but we
   # want them to be an average instead so we divide by num_train.
@@ -75,29 +73,46 @@ def svm_loss_vectorized(W, X, y, reg):
   Inputs and outputs are the same as svm_loss_naive.
   """
   loss = 0.0
+  num_classes = W.shape[1]
+  num_train = X.shape[0]
   dW = np.zeros(W.shape) # initialize the gradient as zero
 
   #############################################################################
-  # TODO:                                                                     #
   # Implement a vectorized version of the structured SVM loss, storing the    #
-  # result in loss.                                                           #
+  # result in .                                                           #
   #############################################################################
-  pass
-  #############################################################################
-  #                             END OF YOUR CODE                              #
-  #############################################################################
+  scores = X.dot(W) # shape = (N, C) TODO: do this in the right direction
+  correct_classes = [np.arange(y.shape[0]),
+                     y] # shape = (2, N)
 
+  correct_class_scores = scores[correct_classes] # shape (N)
+  correct_class_scores = correct_class_scores[:, np.newaxis] # shape (N, 1)
+  # import pytest; pytest.set_trace()
 
-  #############################################################################
-  # TODO:                                                                     #
-  # Implement a vectorized version of the gradient for the structured SVM     #
-  # loss, storing the result in dW.                                           #
-  #                                                                           #
-  # Hint: Instead of computing the gradient from scratch, it may be easier    #
-  # to reuse some of the intermediate values that you used to compute the     #
-  # loss.                                                                     #
-  #############################################################################
-  pass
+  margins = scores - correct_class_scores + 1 # shape (N, C)
+
+  # Zero out the loss for all the correct classes
+  margins[correct_classes] = 0
+
+  # Zero out the loss for everything below zero
+  losses = np.maximum(margins, 0)
+
+  loss = np.sum(losses) / num_train
+  loss += 0.5 * reg * np.sum(np.square(W))
+
+  # Put 1 in for each [training point, class] pair above the margin
+  classes_beyond_margin = (margins > 0).astype(float) # shape (N, C)
+
+  # Count the classes above the margin
+  num_classes_beyond_margin = np.sum((classes_beyond_margin), axis=1) # shape N
+
+  classes_beyond_margin[correct_classes] = -num_classes_beyond_margin
+
+  dW = X.T.dot(classes_beyond_margin)
+  dW /= num_train
+  # Update the gradient for the weights that feed the correct class
+  # dW[:, correct_class] -= num_classes_beyond_margin * x
+
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
