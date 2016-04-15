@@ -95,12 +95,12 @@ def test_svm_loss_vectorized(W_zeros, X, y):
 def test_svm_loss_vectorized_with_weights(W_ones, X, y):
   loss, gradient = svm_loss_vectorized(W_ones, X, y, reg=1.0)
   assert loss == 5.0
-  #
-  # desired_gradient = np.array([
-  #   [3., -1.],
-  #   [2.666667, -0.666667],
-  #   [3., -1.],
-  #   [2.666667, -0.666667]])
-  #
-  #
-  # assert_allclose(desired_gradient, gradient, 0.00001)
+
+  desired_gradient = np.array([
+    [3., -1.],
+    [2.666667, -0.666667],
+    [3., -1.],
+    [2.666667, -0.666667]])
+
+
+  assert_allclose(desired_gradient, gradient, 0.00001)

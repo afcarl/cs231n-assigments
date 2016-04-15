@@ -110,8 +110,13 @@ def svm_loss_vectorized(W, X, y, reg):
 
   dW = X.T.dot(classes_beyond_margin)
   dW /= num_train
+
+  dW += reg * W
+
   # Update the gradient for the weights that feed the correct class
   # dW[:, correct_class] -= num_classes_beyond_margin * x
+
+
 
   #############################################################################
   #                             END OF YOUR CODE                              #
