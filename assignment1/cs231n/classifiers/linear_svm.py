@@ -101,7 +101,7 @@ def svm_loss_vectorized(W, X, y, reg):
   loss += 0.5 * reg * np.sum(np.square(W))
 
   # Put 1 in for each [training point, class] pair above the margin
-  classes_beyond_margin = (margins > 0).astype(float) # shape (N, C)
+  classes_beyond_margin = (margins > 0).astype(np.float64) # shape (N, C)
 
   # For the correct classes, replace the value with the count the count
   # of classes above the margin
