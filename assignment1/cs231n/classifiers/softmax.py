@@ -40,18 +40,21 @@ def softmax_loss_naive(W, X, y, reg):
     correct_class = y[i]
 
     exp_scores = np.exp(scores)
-    normalized_exp_scores = exp_scores / np.sum(exp_scores, axis=0)
 
-    correct_class_score = normalized_exp_scores[correct_class]
+    # Confidence in this class
+    p = exp_scores / np.sum(exp_scores, axis=0) # shape (C)
+
+    correct_class_score = p[correct_class]
 
     loss += - np.log(correct_class_score)
 
     # # Update the gradients
     #
     for j in xrange(num_classes):
-      dW[:, j] += normalized_exp_scores[j] * x
+      dW[:, j] += p[j] * x # dW total is p*x
 
-    dW[:, y[i]] -= x
+    dW[:, correct_class] -= x # dW total is (-1 + p)*x,
+    # More force in this direction if p was low
 
     #
     # dW[:, :] += x[:, np.newaxis]
