@@ -85,19 +85,49 @@ def softmax_loss_vectorized(W, X, y, reg):
 
   Inputs and outputs are the same as softmax_loss_naive.
   """
+  num_classes = W.shape[1]
+  num_train = X.shape[0]
+
   # Initialize the loss and gradient to zero.
   loss = 0.0
-  dW = np.zeros_like(W)
+  dW = np.zeros_like(W) # shape (D, C)
 
   #############################################################################
-  # TODO: Compute the softmax loss and its gradient using no explicit loops.  #
+  # Compute the softmax loss and its gradient using explicit loops.     #
   # Store the loss in loss and the gradient in dW. If you are not careful     #
   # here, it is easy to run into numeric instability. Don't forget the        #
   # regularization!                                                           #
   #############################################################################
-  pass
-  #############################################################################
-  #                          END OF YOUR CODE                                 #
-  #############################################################################
+
+
+  scores = X.dot(W) # shape = (N, C)
+  correct_classes = [np.arange(y.shape[0]),
+                     y] # shape = (2, N)
+
+
+  exp_scores = np.exp(scores) # shape = (N, C)
+
+  # Confidence in each class
+  p = exp_scores / np.sum(exp_scores, axis=1)[:, np.newaxis] # shape (N, C)
+  correct_class_scores = p[correct_classes] # shape (N)
+
+  correct_class_scores = correct_class_scores[:, np.newaxis] # shape (N, 1)
+  loss = - np.sum(np.log(correct_class_scores))
+
+  # Update the gradients
+  p[correct_classes] -= 1 # Subtract 1 from all the correct class ps
+  dW = X.T.dot(p) # dW total is x dot p
+
+  # Right now the loss and dW are sums over all training examples, but we
+  # want them to be an average instead so we divide by num_train.
+  loss /= num_train
+  dW /= num_train
+
+  # Add regularization to the loss and the gradient.
+  loss += 0.5 * reg * np.sum(np.square(W))
+
+  # For each weight Wij, the partial derivative dWij of the loss function above is:
+  #     0.5 * reg * 2.0 * Wij
+  dW += reg * W
 
   return loss, dW

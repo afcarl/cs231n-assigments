@@ -77,19 +77,18 @@ def test_softmax_loss_naive(W_zeros, X, y):
 #
 #   assert_allclose(desired_gradient, gradient, 0.00001)
 
-# 
-# def test_softmax_loss_vectorized(W_zeros, X, y):
-#   loss, gradient = softmax_loss_vectorized(W_zeros, X, y, reg=1.0)
-#   assert loss == 1
 #
-#   desired_gradient = np.array([
-#     [2., -2.],
-#     [1.666667, -1.666667],
-#     [2., -2.],
-#     [1.666667, -1.666667]
-#   ])
-#
-#   assert_allclose(desired_gradient, gradient, 0.00001)
+def test_softmax_loss_vectorized(W_zeros, X, y):
+  loss, gradient = softmax_loss_vectorized(W_zeros, X, y, reg=1.0)
+  assert loss == 0.69314718055994529
+
+  desired_gradient = np.array([
+    [ 1.      , -1.      ],
+    [ 0.833333, -0.833333],
+    [ 1.      , -1.      ],
+    [ 0.833333, -0.833333]])
+
+  assert_allclose(desired_gradient, gradient, 0.00001)
 
 
 
