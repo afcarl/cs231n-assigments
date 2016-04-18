@@ -40,19 +40,22 @@ def softmax_loss_naive(W, X, y, reg):
     correct_class = y[i]
 
     exp_scores = np.exp(scores)
-    normalized_exp_scores = exp_scores / np.sum(exp_scores)
-    # pytest.set_trace()
-    # print scores
-    # print exp_scores
-    # print normalized_exp_scores
+    normalized_exp_scores = exp_scores / np.sum(exp_scores, axis=0)
 
     correct_class_score = normalized_exp_scores[correct_class]
 
     loss += - np.log(correct_class_score)
 
-    # Update the gradients
-    dW[:, :] += x[:, np.newaxis]
-    dW[:, correct_class] -= 2*x  # Undo it for the correct class
+    # # Update the gradients
+    #
+    for j in xrange(num_classes):
+      dW[:, j] += normalized_exp_scores[j] * x
+
+    dW[:, y[i]] -= x
+
+    #
+    # dW[:, :] += x[:, np.newaxis]
+    # dW[:, correct_class] -= x  # Undo it for the correct class
 
   # Right now the loss and dW are sums over all training examples, but we
   # want them to be an average instead so we divide by num_train.
