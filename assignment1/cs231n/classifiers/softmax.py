@@ -99,13 +99,14 @@ def softmax_loss_vectorized(W, X, y, reg):
   # regularization!                                                           #
   #############################################################################
 
+  correct_classes = [np.arange(y.shape[0]), y] # shape = (2, N)
 
-  scores = X.dot(W) # shape = (N, C)
-  correct_classes = [np.arange(y.shape[0]),
-                     y] # shape = (2, N)
+  f = X.dot(W) # shape = (N, C)
 
+  # shift the values of f so that the highest number is 0:
+  f -= np.max(f)
 
-  exp_scores = np.exp(scores) # shape = (N, C)
+  exp_scores = np.exp(f) # shape = (N, C)
 
   # Confidence in each class
   p = exp_scores / np.sum(exp_scores, axis=1)[:, np.newaxis] # shape (N, C)
