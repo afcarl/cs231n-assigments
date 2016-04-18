@@ -51,8 +51,8 @@ def softmax_loss_naive(W, X, y, reg):
     loss += - np.log(correct_class_score)
 
     # Update the gradients
-    dW += x[:, np.newaxis]
-    dW[:, correct_class] -= x
+    dW[:, :] += x[:, np.newaxis]
+    dW[:, correct_class] -= 2*x  # Undo it for the correct class
 
   # Right now the loss and dW are sums over all training examples, but we
   # want them to be an average instead so we divide by num_train.

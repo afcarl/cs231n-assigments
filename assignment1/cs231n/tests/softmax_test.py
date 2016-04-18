@@ -61,7 +61,7 @@ def test_softmax_loss_naive(W_zeros, X, y):
     [1.666667, -1.666667]
   ])
 
-  # assert_allclose(desired_gradient, gradient, 0.00001)
+  assert_allclose(desired_gradient, gradient, 0.00001)
 
 
 
