@@ -1,5 +1,6 @@
 import numpy as np
 from random import shuffle
+import pytest
 
 def softmax_loss_naive(W, X, y, reg):
   """
@@ -40,6 +41,10 @@ def softmax_loss_naive(W, X, y, reg):
 
     exp_scores = np.exp(scores)
     normalized_exp_scores = exp_scores / np.sum(exp_scores)
+    # pytest.set_trace()
+    # print scores
+    # print exp_scores
+    # print normalized_exp_scores
 
     correct_class_score = normalized_exp_scores[correct_class]
 
