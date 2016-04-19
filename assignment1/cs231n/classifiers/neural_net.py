@@ -162,11 +162,20 @@ class TwoLayerNet(object):
     #
     #     relu (H) => W2 (H, C) => dscores (C)
     #
-    for i in range(N):
-      dscore = dscores[i, :] # shape (C)
-      relu = relus[i, :] # shape (H)
-      # pytest.set_trace()
-      grads['W2'] += relu[:, np.newaxis].dot(dscore[np.newaxis, :]) # shape (H, C)
+    matmulled = np.matmul(relus[:, :, np.newaxis], dscores[:, np.newaxis, :]) # shape (N, H, C)
+    summed_matmul = np.sum(matmulled, axis=0)
+    grads['W2'] += summed_matmul
+
+
+    # Local circuit:
+    #
+    #     relu (H) => W1 (D, H) => drelu (H)
+    #
+    # matmulled = np.matmul(relus[:, :, np.newaxis], dscores[:, np.newaxis, :]) # shape (N, H, C)
+    # summed_matmul = np.sum(matmulled, axis=0)
+    # grads['W2'] += summed_matmul
+    #
+    #
 
 
     # For each weight Wij, the partial derivative dWij of the loss function above is:
