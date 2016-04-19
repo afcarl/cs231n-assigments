@@ -1,6 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as plt
-
+import pytest
 
 class TwoLayerNet(object):
   """
@@ -75,11 +74,12 @@ class TwoLayerNet(object):
     # shape (N, C).                                                             #
     ############################################################################
 
-    hidden_layer = np.matmul(X, W1) + b1
+    hidden_layer = np.matmul(X, W1) + b1 # shape (N, H)
 
-    relu = np.max(hidden_layer, 0)
+    relu = np.maximum(hidden_layer, np.zeros(hidden_layer.shape)) # shape (N, H)
 
-    scores = np.matmul(relu, W2) + b2
+    scores = np.matmul(relu, W2) + b2 # shape (N, C)
+    # pytest.set_trace()
 
 
     #############################################################################
