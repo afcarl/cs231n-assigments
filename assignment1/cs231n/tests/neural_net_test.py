@@ -2,9 +2,8 @@
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
-
-
 from cs231n.classifiers.neural_net import TwoLayerNet
+from cs231n.gradient_check import eval_numerical_gradient
 
 # Create a small net and some toy data to check your implementations.
 # Note that we set the random seed for repeatable experiments.
@@ -13,6 +12,10 @@ input_size = 4
 hidden_size = 10
 num_classes = 3
 num_inputs = 5
+
+def rel_error(x, y):
+  """ returns relative error """
+  return np.max(np.abs(x - y) / (np.maximum(1e-8, np.abs(x) + np.abs(y))))
 
 def init_toy_model():
   np.random.seed(0)
@@ -52,3 +55,25 @@ def test_toy_loss():
 
   # should be very small, we get < 1e-12
   assert np.sum(np.abs(loss - correct_loss)) < 1e-12
+
+def test_toy_gradient():
+  # Use numeric gradient checking to check your implementation of the backward pass.
+  # If your implementation is correct, the difference between the numeric and
+  # analytic gradients should be less than 1e-8 for each of W1, W2, b1, and b2.
+
+  net = init_toy_model()
+  X, y = init_toy_data()
+
+  loss, grads = net.loss(X, y, reg=0.1)
+
+  # these should all be less than 1e-8 or so
+  # for param_name in grads:
+  for param_name in ["W2"]:
+    f = lambda W: net.loss(X, y, reg=0.1)[0]
+    param_grad_num = eval_numerical_gradient(f, net.params[param_name], verbose=False)
+
+    param_grad = grads[param_name]
+    print '%s max relative error: %e' % (param_name, rel_error(param_grad_num, param_grad))
+
+    # pytest.set_trace()
+    assert rel_error(param_grad_num, grads[param_name]) < 1e-8

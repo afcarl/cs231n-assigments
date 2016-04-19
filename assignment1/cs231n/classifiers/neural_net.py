@@ -66,6 +66,18 @@ class TwoLayerNet(object):
     W2, b2 = self.params['W2'], self.params['b2']
     N, D = X.shape
 
+    weights = {
+      'W1': W1,
+      'W2': W2,
+      'b1': b1,
+      'b2': b2,
+    }
+
+    # Make properly shaped zeroed out template gradients
+    grads = {}
+    for k, W in weights.iteritems():
+      grads[k] = np.zeros(W.shape)
+
     # Compute the forward pass
     scores = None
     #############################################################################
@@ -75,11 +87,8 @@ class TwoLayerNet(object):
     ############################################################################
 
     hidden_layer = np.matmul(X, W1) + b1 # shape (N, H)
-
-    relu = np.maximum(hidden_layer, np.zeros(hidden_layer.shape)) # shape (N, H)
-
-    scores = np.matmul(relu, W2) + b2 # shape (N, C)
-    # pytest.set_trace()
+    relus = np.maximum(hidden_layer, np.zeros(hidden_layer.shape)) # shape (N, H)
+    scores = np.matmul(relus, W2) + b2 # shape (N, C)
 
 
     #############################################################################
@@ -117,24 +126,17 @@ class TwoLayerNet(object):
     correct_class_scores = correct_class_scores[:, np.newaxis] # shape (N, 1)
     loss = - np.sum(np.log(correct_class_scores))
 
-    # Update the gradients
-    p[correct_classes] -= 1 # Subtract 1 from all the correct class ps
-    # dW = X.T.dot(p) # dW total is x dot p
 
     # Right now the loss and dW are sums over all training examples, but we
     # want them to be an average instead so we divide by N.
     loss /= N
-    # dW /= N
 
     # Add regularization to the loss and the gradient.
     loss += 0.5 * reg * sum([
-      np.sum(np.square(matrix))
-      for matrix in [W1, W2, b1, b2]
+      np.sum(np.square(W))
+      for W in weights.values()
     ])
 
-    # For each weight Wij, the partial derivative dWij of the loss function above is:
-    #     0.5 * reg * 2.0 * Wij
-    # dW += reg * W
 
 
     #############################################################################
@@ -142,13 +144,38 @@ class TwoLayerNet(object):
     #############################################################################
 
     # Backward pass: compute gradients
-    grads = {}
     #############################################################################
-    # TODO: Compute the backward pass, computing the derivatives of the weights #
+    # Compute the backward pass, computing the derivatives of the weights #
     # and biases. Store the results in the grads dictionary. For example,       #
     # grads['W1'] should store the gradient on W1, and be a matrix of same size #
     #############################################################################
-    pass
+    # grads['W2'] = 3
+
+
+    # Update the gradients
+    dscores = p
+    dscores[correct_classes] -= 1 # Subtract 1 from all the correct class ps
+    # dscores is now correct (N, C)
+
+
+    # Local circuit:
+    #
+    #     relu (H) => W2 (H, C) => dscores (C)
+    #
+    for i in range(N):
+      dscore = dscores[i, :] # shape (C)
+      relu = relus[i, :] # shape (H)
+      # pytest.set_trace()
+      grads['W2'] += relu[:, np.newaxis].dot(dscore[np.newaxis, :]) # shape (H, C)
+
+
+    # For each weight Wij, the partial derivative dWij of the loss function above is:
+    #     0.5 * reg * 2.0 * Wij
+    #
+    for key in grads.keys():
+      grads[key] /= N
+      grads[key] += reg * weights[key]
+
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
