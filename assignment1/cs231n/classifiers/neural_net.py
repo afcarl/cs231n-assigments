@@ -70,15 +70,22 @@ class TwoLayerNet(object):
     # Compute the forward pass
     scores = None
     #############################################################################
-    # TODO: Perform the forward pass, computing the class scores for the input. #
+    # Perform the forward pass, computing the class scores for the input. #
     # Store the result in the scores variable, which should be an array of      #
     # shape (N, C).                                                             #
-    #############################################################################
-    pass
+    ############################################################################
+
+    hidden_layer = np.matmul(X, W1) + b1
+
+    relu = np.max(hidden_layer, 0)
+
+    scores = np.matmul(relu, W2) + b2
+
+
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
-    
+
     # If the targets are not given then jump out, we're done
     if y is None:
       return scores
@@ -214,5 +221,3 @@ class TwoLayerNet(object):
     ###########################################################################
 
     return y_pred
-
-
