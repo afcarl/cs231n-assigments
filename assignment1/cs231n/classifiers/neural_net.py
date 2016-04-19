@@ -91,15 +91,52 @@ class TwoLayerNet(object):
       return scores
 
     # Compute the loss
-    loss = None
+    loss = 0.0
     #############################################################################
-    # TODO: Finish the forward pass, and compute the loss. This should include  #
+    # Finish the forward pass, and compute the loss. This should include  #
     # both the data loss and L2 regularization for W1 and W2. Store the result  #
     # in the variable loss, which should be a scalar. Use the Softmax           #
     # classifier loss. So that your results match ours, multiply the            #
     # regularization loss by 0.5                                                #
     #############################################################################
-    pass
+
+
+    correct_classes = [np.arange(y.shape[0]), y] # shape = (2, N)
+
+    f = scores # shape = (N, C)
+
+    # shift the values of f so that the highest number is 0:
+    f -= np.max(f)
+
+    exp_scores = np.exp(f) # shape = (N, C)
+
+    # Confidence in each class
+    p = exp_scores / np.sum(exp_scores, axis=1)[:, np.newaxis] # shape (N, C)
+    correct_class_scores = p[correct_classes] # shape (N)
+
+    correct_class_scores = correct_class_scores[:, np.newaxis] # shape (N, 1)
+    loss = - np.sum(np.log(correct_class_scores))
+
+    # Update the gradients
+    p[correct_classes] -= 1 # Subtract 1 from all the correct class ps
+    # dW = X.T.dot(p) # dW total is x dot p
+
+    # Right now the loss and dW are sums over all training examples, but we
+    # want them to be an average instead so we divide by N.
+    loss /= N
+    # dW /= N
+
+    # Add regularization to the loss and the gradient.
+    loss += 0.5 * reg * sum([
+      np.sum(np.square(matrix))
+      for matrix in [W1, W2, b1, b2]
+    ])
+
+    # For each weight Wij, the partial derivative dWij of the loss function above is:
+    #     0.5 * reg * 2.0 * Wij
+    # dW += reg * W
+
+
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################

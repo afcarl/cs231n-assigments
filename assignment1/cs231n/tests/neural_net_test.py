@@ -41,3 +41,14 @@ def test_toy_scores():
   # The difference should be very small. We get < 1e-7
 
   assert_allclose(scores, correct_scores, 0.00001)
+
+
+def test_toy_loss():
+  net = init_toy_model()
+  X, y = init_toy_data()
+
+  loss, _ = net.loss(X, y, reg=0.1)
+  correct_loss = 1.30378789133
+
+  # should be very small, we get < 1e-12
+  assert np.sum(np.abs(loss - correct_loss)) < 1e-12
