@@ -115,13 +115,17 @@ class TwoLayerNet(object):
 
     f = scores # shape = (N, C)
 
-    # shift the values of f so that the highest number is 0:
-    f -= np.max(f)
+    # shift the values of f so that the highest number is 0 in any row:
+    f -= np.max(f, axis=1)[:, np.newaxis] # shape (N, C)
 
     exp_scores = np.exp(f) # shape = (N, C)
 
     # Confidence in each class
     p = exp_scores / np.sum(exp_scores, axis=1)[:, np.newaxis] # shape (N, C)
+    probs = p
+    if np.isnan(p).any():
+      pytest.set_trace()
+
     correct_class_scores = p[correct_classes] # shape (N)
 
     correct_class_scores = correct_class_scores[:, np.newaxis] # shape (N, 1)
@@ -242,7 +246,7 @@ class TwoLayerNet(object):
       # them in X_batch and y_batch respectively.                             #
       #########################################################################
 
-      batch_indices = np.choice(range(num_train), batch_size, replace=True)
+      batch_indices = np.random.choice(range(num_train), batch_size, replace=True)
       X_batch = X[batch_indices]
       y_batch = y[batch_indices]
 
