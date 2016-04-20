@@ -111,7 +111,6 @@ class TwoLayerNet(object):
     #############################################################################
 
 
-    correct_classes = [np.arange(y.shape[0]), y] # shape = (2, N)
 
     f = scores # shape = (N, C)
 
@@ -120,15 +119,29 @@ class TwoLayerNet(object):
 
     exp_scores = np.exp(f) # shape = (N, C)
 
-    # Confidence in each class
+    # Exponentiate and normalize to get confidence in each class
     p = exp_scores / np.sum(exp_scores, axis=1)[:, np.newaxis] # shape (N, C)
+    probs = p # for pdb
 
+    # We used the shift trick to get everything to small values
     assert np.any(np.isnan(p)) == False
 
+    correct_classes = [np.arange(y.shape[0]), y] # shape = (2, N)
     correct_class_scores = p[correct_classes] # shape (N)
 
     correct_class_scores = correct_class_scores[:, np.newaxis] # shape (N, 1)
+    # if np.any(correct_class_scores == 0):
+    #   pytest.set_trace()
+
+    # This is np.log(0.0) when we're very confident in the wrong answer.
+    # For numeric stability, I cap it at an arbitrary value
+    correct_class_scores = np.maximum(correct_class_scores, 1e-20)
+
+    # loss = - np.sum(np.log(correct_class_scores))
+
+
     loss = - np.sum(np.log(correct_class_scores))
+
 
 
     # Right now the loss and dW are sums over all training examples, but we

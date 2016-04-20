@@ -81,9 +81,10 @@ def test_toy_iterations():
   net = init_toy_model()
   X, y = init_toy_data()
   net = init_toy_model()
-  stats = net.train(X, y, X, y,
-            learning_rate=1e-1, reg=1e-5,
-            num_iters=100, verbose=False)
+  with np.errstate(divide='raise'):
+    stats = net.train(X, y, X, y,
+              learning_rate=1e-1, reg=1e-5,
+              num_iters=100, verbose=False)
 
 
   final_training_loss = stats['loss_history'][-1]
