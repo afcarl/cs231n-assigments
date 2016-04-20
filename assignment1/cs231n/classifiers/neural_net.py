@@ -149,7 +149,6 @@ class TwoLayerNet(object):
     loss /= N
 
     # Add regularization to the loss and the gradient.
-    # TODO: check if broken
 
     reg_loss = 0.5 * reg * sum([
       np.sum(np.square(W))
@@ -158,8 +157,8 @@ class TwoLayerNet(object):
 
     loss += reg_loss
 
-    if np.any(correct_class_scores == 0):
-      pytest.set_trace()
+    # if np.any(correct_class_scores == 0):
+    #   pytest.set_trace()
 
 
     #############################################################################
