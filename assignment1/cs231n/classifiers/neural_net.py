@@ -124,7 +124,7 @@ class TwoLayerNet(object):
     probs = p # for pdb
 
     # We used the shift trick to get everything to small values
-    assert np.any(np.isnan(p)) == False
+    # assert np.any(np.isnan(p)) == False
 
     correct_classes = [np.arange(y.shape[0]), y] # shape = (2, N)
     correct_class_scores = p[correct_classes] # shape (N)
