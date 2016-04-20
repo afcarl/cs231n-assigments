@@ -67,8 +67,7 @@ def test_toy_gradient():
   loss, grads = net.loss(X, y, reg=0.1)
 
   # these should all be less than 1e-8 or so
-  # for param_name in grads:
-  for param_name in ["W2", "W1"]:
+  for param_name in grads:
     f = lambda W: net.loss(X, y, reg=0.1)[0]
     param_grad_num = eval_numerical_gradient(f, net.params[param_name], verbose=False)
 

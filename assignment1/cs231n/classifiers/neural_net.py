@@ -163,9 +163,10 @@ class TwoLayerNet(object):
     #
     #     relus_out (N, H) => dW2 (H, C) => dscores (N, C)
     #
-    matmulled = np.matmul(relus_out[:, :, np.newaxis], dscores[:, np.newaxis, :]) # shape (N, H, C)
-    grads['W2'] += np.sum(matmulled, axis=0)
+    dW2s = np.matmul(relus_out[:, :, np.newaxis], dscores[:, np.newaxis, :]) # shape (N, H, C)
+    grads['W2'] += np.sum(dW2s, axis=0)
 
+    grads['b2'] += np.sum(dscores, axis=0)
 
     # Relus function
     # R(x) = x if (x > 0), else 0
@@ -187,9 +188,10 @@ class TwoLayerNet(object):
     #     X (N, D) => dW1 (D, H) => drelus_in (N, H)
     #
 
-    matmulled = np.matmul(X[:, :, np.newaxis], drelus_in[:, np.newaxis, :]) # shape (N, D, H)
-    assert matmulled.shape == (N, D, H)
-    grads['W1'] += np.sum(matmulled, axis=0)
+    dW1s = np.matmul(X[:, :, np.newaxis], drelus_in[:, np.newaxis, :]) # shape (N, D, H)
+    grads['W1'] += np.sum(dW1s, axis=0)
+
+    grads['b1'] += np.sum(drelus_in, axis=0)
 
     # For each weight Wij, the partial derivative dWij of the loss function above is:
     #     0.5 * reg * 2.0 * Wij
