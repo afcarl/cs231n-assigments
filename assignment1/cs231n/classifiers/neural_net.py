@@ -150,8 +150,6 @@ class TwoLayerNet(object):
     # and biases. Store the results in the grads dictionary. For example,       #
     # grads['W1'] should store the gradient on W1, and be a matrix of same size #
     #############################################################################
-    # grads['W2'] = 3
-
 
     # Update the gradients
     dscores = p
@@ -230,7 +228,7 @@ class TwoLayerNet(object):
     num_train = X.shape[0]
     iterations_per_epoch = max(num_train / batch_size, 1)
 
-    # Use SGD to optimize the parameters in self.model
+    # Use SGD to optimize the parameters in self.params
     loss_history = []
     train_acc_history = []
     val_acc_history = []
@@ -240,10 +238,14 @@ class TwoLayerNet(object):
       y_batch = None
 
       #########################################################################
-      # TODO: Create a random minibatch of training data and labels, storing  #
+      # Create a random minibatch of training data and labels, storing  #
       # them in X_batch and y_batch respectively.                             #
       #########################################################################
-      pass
+
+      batch_indices = np.choice(range(num_train), batch_size, replace=True)
+      X_batch = X[batch_indices]
+      y_batch = y[batch_indices]
+
       #########################################################################
       #                             END OF YOUR CODE                          #
       #########################################################################
@@ -253,12 +255,15 @@ class TwoLayerNet(object):
       loss_history.append(loss)
 
       #########################################################################
-      # TODO: Use the gradients in the grads dictionary to update the         #
+      # Use the gradients in the grads dictionary to update the         #
       # parameters of the network (stored in the dictionary self.params)      #
       # using stochastic gradient descent. You'll need to use the gradients   #
       # stored in the grads dictionary defined above.                         #
       #########################################################################
-      pass
+
+      for key in self.params.keys():
+        self.params[key] -= grads[key]
+
       #########################################################################
       #                             END OF YOUR CODE                          #
       #########################################################################
@@ -301,9 +306,12 @@ class TwoLayerNet(object):
     y_pred = None
 
     ###########################################################################
-    # TODO: Implement this function; it should be VERY simple!                #
+    # Implement this function; it should be VERY simple!                #
     ###########################################################################
-    pass
+
+    scores = self.loss(X) # shape (N, C)
+    return np.argmax(scores, axis=1) # shape (N,)
+
     ###########################################################################
     #                              END OF YOUR CODE                           #
     ###########################################################################
