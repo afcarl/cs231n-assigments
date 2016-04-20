@@ -123,6 +123,8 @@ class TwoLayerNet(object):
     # Confidence in each class
     p = exp_scores / np.sum(exp_scores, axis=1)[:, np.newaxis] # shape (N, C)
 
+    assert np.any(np.isnan(p)) == False
+
     correct_class_scores = p[correct_classes] # shape (N)
 
     correct_class_scores = correct_class_scores[:, np.newaxis] # shape (N, 1)
