@@ -65,6 +65,7 @@ class TwoLayerNet(object):
     W1, b1 = self.params['W1'], self.params['b1']
     W2, b2 = self.params['W2'], self.params['b2']
     N, D = X.shape
+    H, C = W2.shape
 
     weights = {
       'W1': W1,
@@ -86,9 +87,9 @@ class TwoLayerNet(object):
     # shape (N, C).                                                             #
     ############################################################################
 
-    hidden_layer = np.matmul(X, W1) + b1 # shape (N, H)
-    relus = np.maximum(hidden_layer, np.zeros(hidden_layer.shape)) # shape (N, H)
-    scores = np.matmul(relus, W2) + b2 # shape (N, C)
+    first_matmul_out = np.matmul(X, W1) + b1 # shape (N, H)
+    relus_out = np.maximum(first_matmul_out, np.zeros(first_matmul_out.shape)) # shape (N, H)
+    scores = np.matmul(relus_out, W2) + b2 # shape (N, C)
 
 
     #############################################################################
@@ -160,23 +161,35 @@ class TwoLayerNet(object):
 
     # Local circuit:
     #
-    #     relu (H) => W2 (H, C) => dscores (C)
+    #     relus_out (N, H) => dW2 (H, C) => dscores (N, C)
     #
-    matmulled = np.matmul(relus[:, :, np.newaxis], dscores[:, np.newaxis, :]) # shape (N, H, C)
-    summed_matmul = np.sum(matmulled, axis=0)
-    grads['W2'] += summed_matmul
+    matmulled = np.matmul(relus_out[:, :, np.newaxis], dscores[:, np.newaxis, :]) # shape (N, H, C)
+    grads['W2'] += np.sum(matmulled, axis=0)
 
+
+    # Relus function
+    # R(x) = x if (x > 0), else 0
+    # dR(x)/dx = 1 if (x > 0), else 0
+    #
+    # Local circuit:
+    #
+    #     drelus_out (N, H) => dscores (N, C) => W2 (H, C)
+    #
+
+
+    drelus_out = np.matmul(dscores, W2.T) # shape (N, H)
+
+    # Zero-out relu values that are below zero
+    drelus_in = drelus_out * (relus_out > 0) # shape (N, H)
 
     # Local circuit:
     #
-    #     relu (H) => W1 (D, H) => drelu (H)
-    #
-    # matmulled = np.matmul(relus[:, :, np.newaxis], dscores[:, np.newaxis, :]) # shape (N, H, C)
-    # summed_matmul = np.sum(matmulled, axis=0)
-    # grads['W2'] += summed_matmul
-    #
+    #     X (N, D) => dW1 (D, H) => drelus_in (N, H)
     #
 
+    matmulled = np.matmul(X[:, :, np.newaxis], drelus_in[:, np.newaxis, :]) # shape (N, D, H)
+    assert matmulled.shape == (N, D, H)
+    grads['W1'] += np.sum(matmulled, axis=0)
 
     # For each weight Wij, the partial derivative dWij of the loss function above is:
     #     0.5 * reg * 2.0 * Wij
