@@ -122,9 +122,6 @@ class TwoLayerNet(object):
 
     # Confidence in each class
     p = exp_scores / np.sum(exp_scores, axis=1)[:, np.newaxis] # shape (N, C)
-    probs = p
-    if np.isnan(p).any():
-      pytest.set_trace()
 
     correct_class_scores = p[correct_classes] # shape (N)
 
