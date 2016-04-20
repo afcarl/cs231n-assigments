@@ -130,17 +130,17 @@ class TwoLayerNet(object):
     correct_class_scores = p[correct_classes] # shape (N)
 
     correct_class_scores = correct_class_scores[:, np.newaxis] # shape (N, 1)
-    # if np.any(correct_class_scores == 0):
-    #   pytest.set_trace()
+
+
 
     # This is np.log(0.0) when we're very confident in the wrong answer.
     # For numeric stability, I cap it at an arbitrary value
-    correct_class_scores = np.maximum(correct_class_scores, 1e-20)
+    correct_class_scores_maxed = np.maximum(correct_class_scores, 1e-20)
 
     # loss = - np.sum(np.log(correct_class_scores))
 
 
-    loss = - np.sum(np.log(correct_class_scores))
+    loss = - np.sum(np.log(correct_class_scores_maxed))
 
 
 
@@ -149,11 +149,17 @@ class TwoLayerNet(object):
     loss /= N
 
     # Add regularization to the loss and the gradient.
-    loss += 0.5 * reg * sum([
+    # TODO: check if broken
+
+    reg_loss = 0.5 * reg * sum([
       np.sum(np.square(W))
       for W in weights.values()
     ])
 
+    loss += reg_loss
+
+    if np.any(correct_class_scores == 0):
+      pytest.set_trace()
 
 
     #############################################################################
@@ -212,7 +218,7 @@ class TwoLayerNet(object):
     #
     for key in grads.keys():
       grads[key] /= N
-      grads[key] += reg * weights[key]
+      grads[key] += reg * weights[key] # w.g dW2 += reg*W2
 
     #############################################################################
     #                              END OF YOUR CODE                             #
@@ -278,7 +284,7 @@ class TwoLayerNet(object):
       #########################################################################
 
       for key in self.params.keys():
-        self.params[key] -= grads[key]
+        self.params[key] -= grads[key] * learning_rate
 
       #########################################################################
       #                             END OF YOUR CODE                          #
