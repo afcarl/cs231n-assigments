@@ -25,7 +25,10 @@ def affine_forward(x, w, b):
   # will need to reshape the input into rows.                                 #
   #############################################################################
 
-  out = np.matmul(x, w) + b
+  newshape = (x.shape[0], -1)
+  x_reshaped = np.reshape(x, newshape)
+
+  out = np.matmul(x_reshaped, w) + b
 
   #############################################################################
   #                             END OF YOUR CODE                              #

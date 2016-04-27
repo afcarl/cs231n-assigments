@@ -26,5 +26,5 @@ def test_affine_forward():
 
   # Compare your output with ours. The error should be around 1e-9.
   print 'Testing affine_forward function:'
-  print 'difference: ', rel_error(out, correct_out)
-  assert np.sum(np.abs(out - correct_out)) < 1e-12
+  assert correct_out.shape == out.shape
+  assert np.sum(np.abs(out - correct_out)) < 1e-7

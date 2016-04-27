@@ -11,6 +11,6 @@ pip install -r requirements.txt
 # Run Tests
 
 ```
-cd assignment1
+cd assignment2
 ptw cs231n
 ```
