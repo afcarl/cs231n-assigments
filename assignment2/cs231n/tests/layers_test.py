@@ -6,6 +6,8 @@ from cs231n.data_utils import get_CIFAR10_data
 from cs231n.gradient_check import eval_numerical_gradient, eval_numerical_gradient_array
 from cs231n.solver import Solver
 
+def assert_close(x, y, delta=1e-7):
+  assert np.sum(np.abs(x - y)) < delta
 
 # Test the affine_forward function
 def test_affine_forward():
@@ -27,4 +29,26 @@ def test_affine_forward():
   # Compare your output with ours. The error should be around 1e-9.
   print 'Testing affine_forward function:'
   assert correct_out.shape == out.shape
-  assert np.sum(np.abs(out - correct_out)) < 1e-7
+  assert_close(out, correct_out)
+
+
+def test_affine_backwards():
+  # Test the affine_backward function
+
+  x = np.random.randn(10, 2, 3)
+  w = np.random.randn(6, 5)
+  b = np.random.randn(5)
+  dout = np.random.randn(10, 5)
+
+  dx_num = eval_numerical_gradient_array(lambda x: affine_forward(x, w, b)[0], x, dout)
+  dw_num = eval_numerical_gradient_array(lambda w: affine_forward(x, w, b)[0], w, dout)
+  db_num = eval_numerical_gradient_array(lambda b: affine_forward(x, w, b)[0], b, dout)
+
+  _, cache = affine_forward(x, w, b)
+  dx, dw, db = affine_backward(dout, cache)
+  assert_close(dx, dx_num)
+  assert_close(dw, dw_num)
+  assert_close(db, db_num)
+  # The error should be around 1e-10
+  print 'Testing affine_backward function:'
+  print db.shape, db_num.shape

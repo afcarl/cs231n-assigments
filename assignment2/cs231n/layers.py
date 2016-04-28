@@ -1,5 +1,8 @@
 import numpy as np
 
+def _flatten(x):
+  newshape = (x.shape[0], -1)
+  return np.reshape(x, newshape)
 
 def affine_forward(x, w, b):
   """
@@ -25,10 +28,9 @@ def affine_forward(x, w, b):
   # will need to reshape the input into rows.                                 #
   #############################################################################
 
-  newshape = (x.shape[0], -1)
-  x_reshaped = np.reshape(x, newshape)
+  flat_x = _flatten(x)
 
-  out = np.matmul(x_reshaped, w) + b
+  out = np.matmul(flat_x, w) + b
 
   #############################################################################
   #                             END OF YOUR CODE                              #
@@ -53,11 +55,21 @@ def affine_backward(dout, cache):
   - db: Gradient with respect to b, of shape (M,)
   """
   x, w, b = cache
-  dx, dw, db = None, None, None
   #############################################################################
-  # TODO: Implement the affine backward pass.                                 #
+  # Implement the affine backward pass.                                 #
   #############################################################################
-  pass
+
+  flat_x = _flatten(x) # shape (N, D)
+
+  dx_flat = np.matmul(dout, w.T) # shape (N, D)
+  dx = np.reshape(dx_flat, x.shape)
+
+  dw = np.matmul(flat_x.T, dout) # shape (D, M)
+
+  db = np.sum(dout, axis=0) # shape (M,)
+
+
+
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
