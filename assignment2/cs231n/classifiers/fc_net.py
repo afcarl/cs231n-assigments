@@ -128,7 +128,6 @@ class TwoLayerNet(object):
       grads[key] += w * self.reg
       reg_loss += 0.5 * self.reg * np.sum(w * w)
 
-    # print reg_loss
     loss += reg_loss
     ############################################################################
     #                             END OF YOUR CODE                             #
@@ -272,8 +271,6 @@ class FullyConnectedNet(object):
     # The input to the first layer
     previous_layer_out = X
 
-    # print [(key, value.shape) for (key, value) in self.params.items() ]
-
     for layer_num in self.layer_nums:
       weight_key = 'W' + str(layer_num)
       bias_key = 'b' + str(layer_num)
@@ -335,7 +332,6 @@ class FullyConnectedNet(object):
       grads[key] += w * self.reg
       reg_loss += 0.5 * self.reg * np.sum(w * w)
 
-    # print reg_loss
     loss += reg_loss
 
 
