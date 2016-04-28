@@ -16,6 +16,7 @@ def affine_relu_forward(x, w, b):
   """
   a, fc_cache = affine_forward(x, w, b)
   out, relu_cache = relu_forward(a)
+  print relu_cache.shape
   cache = (fc_cache, relu_cache)
   return out, cache
 

@@ -112,7 +112,7 @@ class TwoLayerNet(object):
     # of 0.5 to simplify the expression for the gradient.                      #
     ############################################################################
 
-    loss, dlayer2_out = softmax_loss(layer2_out, y)
+    loss, dlayer2_out = softmax_loss(scores, y)
 
     drelu_out, grads['W2'], grads['b2'] = affine_backward(dlayer2_out, layer2_cache)
 
@@ -123,7 +123,6 @@ class TwoLayerNet(object):
 
     # Why do we ignore bias vectors now?
     reg_loss = 0
-
     for key in [key for key in self.params.keys() if key[0] == 'W']:
       w = self.params[key]
       grads[key] += w * self.reg
@@ -181,6 +180,7 @@ class FullyConnectedNet(object):
     self.use_dropout = dropout > 0
     self.reg = reg
     self.num_layers = 1 + len(hidden_dims)
+    self.layer_nums = [i + 1 for i in range(self.num_layers)] # Layers are 1-indexed
     self.dtype = dtype
     self.params = {}
 
@@ -196,7 +196,19 @@ class FullyConnectedNet(object):
     # beta2, etc. Scale parameters should be initialized to one and shift      #
     # parameters should be initialized to zero.                                #
     ############################################################################
-    pass
+
+    previous_layer_dim = input_dim
+
+    for layer_num, hidden_dim in zip(self.layer_nums, hidden_dims + [num_classes]):
+      weight_key = 'W' + str(layer_num)
+      bias_key = 'b' + str(layer_num)
+
+      self.params[weight_key] = np.random.randn(previous_layer_dim, hidden_dim) * weight_scale
+      self.params[bias_key] = np.zeros((hidden_dim))
+
+      # Set up next layer
+      previous_layer_dim = hidden_dim
+
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
@@ -243,7 +255,7 @@ class FullyConnectedNet(object):
 
     scores = None
     ############################################################################
-    # TODO: Implement the forward pass for the fully-connected net, computing  #
+    # Implement the forward pass for the fully-connected net, computing  #
     # the class scores for X and storing them in the scores variable.          #
     #                                                                          #
     # When using dropout, you'll need to pass self.dropout_param to each       #
@@ -254,7 +266,29 @@ class FullyConnectedNet(object):
     # self.bn_params[1] to the forward pass for the second batch normalization #
     # layer, etc.                                                              #
     ############################################################################
-    pass
+
+    layer_caches = {}
+
+    # The input to the first layer
+    previous_layer_out = X
+
+    # print [(key, value.shape) for (key, value) in self.params.items() ]
+
+    for layer_num in self.layer_nums:
+      weight_key = 'W' + str(layer_num)
+      bias_key = 'b' + str(layer_num)
+
+      affine_relu_out, layer_caches[layer_num] = affine_relu_forward(
+        previous_layer_out,
+        self.params[weight_key],
+        self.params[bias_key])
+
+      # Set up for the next iteration
+      previous_layer_out = affine_relu_out
+
+    # Our output to the last layer
+    scores = previous_layer_out
+
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
@@ -265,7 +299,7 @@ class FullyConnectedNet(object):
 
     loss, grads = 0.0, {}
     ############################################################################
-    # TODO: Implement the backward pass for the fully-connected net. Store the #
+    # Implement the backward pass for the fully-connected net. Store the #
     # loss in the loss variable and gradients in the grads dictionary. Compute #
     # data loss using softmax, and make sure that grads[k] holds the gradients #
     # for self.params[k]. Don't forget to add L2 regularization!               #
@@ -277,7 +311,39 @@ class FullyConnectedNet(object):
     # automated tests, make sure that your L2 regularization includes a factor #
     # of 0.5 to simplify the expression for the gradient.                      #
     ############################################################################
-    pass
+
+    # The input to the last layer
+    loss, next_layer_dout = softmax_loss(scores, y)
+
+    # print [(key, value.shape) for (key, value) in self.params.items() ]
+    for key, cache in layer_caches.items():
+      print key
+      print len(cache)
+      (affine, relu) = cache
+
+      print "affine"
+      print [W.shape for W in affine]
+
+      print "relu"
+      print len(relu)
+      print [W.shape for W in relu]
+
+    for layer_num in reversed(self.layer_nums):
+      weight_key = 'W' + str(layer_num)
+      bias_key = 'b' + str(layer_num)
+      cache = layer_caches[layer_num]
+
+      dx, dw, db = affine_relu_backward(next_layer_dout, cache)
+
+      grads[weight_key] = dw
+      grads[bias_key] = db
+
+      # Set up for the next iteration
+      next_layer_dout = dx
+
+    # Our output to the last layer
+    scores = previous_layer_out
+
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
