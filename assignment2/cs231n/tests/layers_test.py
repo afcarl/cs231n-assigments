@@ -68,9 +68,6 @@ def test_relu_forward():
   print 'Testing relu_forward function:'
   print 'difference: ', assert_close(out, correct_out)
 
-
-
-
 def test_relu_backwards():
   x = np.random.randn(10, 10)
   dout = np.random.randn(*x.shape)
@@ -83,3 +80,35 @@ def test_relu_backwards():
   # The error should be around 1e-12
   print 'Testing relu_backward function:'
   print 'dx error: ', assert_close(dx_num, dx)
+
+def test_batch_norm():
+  # Check the training-time forward pass by checking means and variances
+  # of features both before and after batch normalization
+
+  # Simulate the forward pass for a two-layer network
+  N, D1, D2, D3 = 200, 50, 60, 3
+  X = np.random.randn(N, D1)
+  W1 = np.random.randn(D1, D2)
+  W2 = np.random.randn(D2, D3)
+  a = np.maximum(0, X.dot(W1)).dot(W2)
+
+  print 'Before batch normalization:'
+  print '  means: ', a.mean(axis=0)
+  print '  stds: ', a.std(axis=0)
+
+  # Means should be close to zero and stds close to one
+  print 'After batch normalization (gamma=1, beta=0)'
+  a_norm, _ = batchnorm_forward(a, np.ones(D3), np.zeros(D3), {'mode': 'train'})
+  print "mean"
+  assert_close(a_norm.mean(axis=0), 0.0)
+
+  print 'std',
+  assert_close(a_norm.std(axis=0), 1.0)
+
+  # Now means should be close to beta and stds close to gamma
+  gamma = np.asarray([1.0, 2.0, 3.0])
+  beta = np.asarray([11.0, 12.0, 13.0])
+  a_norm, _ = batchnorm_forward(a, gamma, beta, {'mode': 'train'})
+  print 'After batch normalization (nontrivial gamma, beta)'
+  print '  means: ', a_norm.mean(axis=0)
+  print '  stds: ', a_norm.std(axis=0)
