@@ -59,13 +59,18 @@ def sgd_momentum(w, dw, config=None):
   config.setdefault('learning_rate', 1e-2)
   config.setdefault('momentum', 0.9)
   v = config.get('velocity', np.zeros_like(w))
-  
+
   next_w = None
   #############################################################################
-  # TODO: Implement the momentum update formula. Store the updated value in   #
+  # Implement the momentum update formula. Store the updated value in   #
   # the next_w variable. You should also use and update the velocity v.       #
   #############################################################################
-  pass
+
+  delta_v_from_gravity = config['learning_rate'] * dw
+  previous_v = config['momentum'] * v
+  v = previous_v - delta_v_from_gravity
+
+  next_w = w + v
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
@@ -96,7 +101,7 @@ def rmsprop(x, dx, config=None):
   next_x = None
   #############################################################################
   # TODO: Implement the RMSprop update formula, storing the next value of x   #
-  # in the next_x variable. Don't forget to update cache value stored in      #  
+  # in the next_x variable. Don't forget to update cache value stored in      #
   # config['cache'].                                                          #
   #############################################################################
   pass
@@ -129,7 +134,7 @@ def adam(x, dx, config=None):
   config.setdefault('m', np.zeros_like(x))
   config.setdefault('v', np.zeros_like(x))
   config.setdefault('t', 0)
-  
+
   next_x = None
   #############################################################################
   # TODO: Implement the Adam update formula, storing the next value of x in   #
@@ -140,10 +145,5 @@ def adam(x, dx, config=None):
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
-  
+
   return next_x, config
-
-  
-  
-  
-
