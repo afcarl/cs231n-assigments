@@ -315,19 +315,6 @@ class FullyConnectedNet(object):
     # The input to the last layer
     loss, next_layer_dout = softmax_loss(scores, y)
 
-    # print [(key, value.shape) for (key, value) in self.params.items() ]
-    for key, cache in layer_caches.items():
-      print key
-      print len(cache)
-      (affine, relu) = cache
-
-      print "affine"
-      print [W.shape for W in affine]
-
-      print "relu"
-      print len(relu)
-      print [W.shape for W in relu]
-
     for layer_num in reversed(self.layer_nums):
       weight_key = 'W' + str(layer_num)
       bias_key = 'b' + str(layer_num)
@@ -341,8 +328,16 @@ class FullyConnectedNet(object):
       # Set up for the next iteration
       next_layer_dout = dx
 
-    # Our output to the last layer
-    scores = previous_layer_out
+    # Reg loss
+    reg_loss = 0
+    for key in [key for key in self.params.keys() if key[0] == 'W']:
+      w = self.params[key]
+      grads[key] += w * self.reg
+      reg_loss += 0.5 * self.reg * np.sum(w * w)
+
+    # print reg_loss
+    loss += reg_loss
+
 
     ############################################################################
     #                             END OF YOUR CODE                             #
