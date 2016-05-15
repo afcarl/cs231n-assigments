@@ -4,13 +4,16 @@ Details about this assignment can be found [on the course webpage](http://cs231n
 
 ```bash
 virtualenv venv
-source venv/activate
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
 # Run Tests
 
+I recommend install pdbpp for a better debugging experience
+
 ```
 cd assignment2
-ptw cs231n
+source venv/bin/activate
+
 ```

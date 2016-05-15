@@ -109,6 +109,7 @@ def test_batch_norm():
   gamma = np.asarray([1.0, 2.0, 3.0])
   beta = np.asarray([11.0, 12.0, 13.0])
   a_norm, _ = batchnorm_forward(a, gamma, beta, {'mode': 'train'})
+
   print 'After batch normalization (nontrivial gamma, beta)'
   print '  means: ', a_norm.mean(axis=0)
   print '  stds: ', a_norm.std(axis=0)
