@@ -193,9 +193,24 @@ def batchnorm_forward(x, gamma, beta, bn_param):
     sample_mean = np.sum(x, axis = 0) / N
     sample_var = np.sum(np.square(x - eps), axis = 0) / N
 
-    xhat = (x - sample_mean) / np.sqrt(sample_var + eps)
+    top = (x - sample_mean)
+    bottom = np.sqrt(sample_var + eps)
 
+    xhat = top / bottom
     out = gamma * xhat + beta
+
+    # Store cache for backwards pass
+    cache = (
+      xhat,
+      gamma,
+      top,
+      bottom,
+      sample_var,
+      eps,
+      x,
+      N,
+    )
+
 
     # Update running_mean
     running_mean = momentum * running_mean + (1 - momentum) * sample_mean
@@ -248,11 +263,32 @@ def batchnorm_backward(dout, cache):
   - dbeta: Gradient with respect to shift parameter beta, of shape (D,)
   """
   dx, dgamma, dbeta = None, None, None
+  xhat, gamma, top, bottom, sample_var, eps, x, N = cache
   #############################################################################
   # TODO: Implement the backward pass for batch normalization. Store the      #
   # results in the dx, dgamma, and dbeta variables.                           #
   #############################################################################
-  pass
+
+
+
+  dbeta = np.sum(dout, axis=0)
+  dgamma = np.sum(xhat * dout, axis=0)
+
+  # Break apart dxhat
+  dxhat = dout * gamma
+
+  dtop = dxhat / bottom
+  dbottom = -1 * dxhat * top / np.square(bottom)
+
+  # Break apart dtop
+  dx = dtop
+  dx -= np.sum((dtop / N), axis = 1)[:, np.newaxis]
+
+  # Break apart dbottom
+  dbottom_rooted = 1 / (2 * np.sqrt(sample_var + eps))
+
+  dx += dbottom_rooted * 2 * (x - eps)/ N
+
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
