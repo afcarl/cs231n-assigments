@@ -278,14 +278,14 @@ def batchnorm_backward(dout, cache):
   dxhat = dout * gamma
 
   dtop = dxhat / bottom
-  dbottom = -1 * dxhat * top / np.square(bottom)
+  dbottom = dxhat * -1 * top / np.square(bottom)
 
   # Break apart dtop
   dx = dtop
   dx -= np.sum((dtop / N), axis = 1)[:, np.newaxis]
 
   # Break apart dbottom
-  dbottom_rooted = 1 / (2 * np.sqrt(sample_var + eps))
+  dbottom_rooted = dbottom / (2 * np.sqrt(sample_var + eps))
 
   dx += dbottom_rooted * 2 * (x - eps)/ N
 
