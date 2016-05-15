@@ -206,9 +206,11 @@ def batchnorm_forward(x, gamma, beta, bn_param):
       top,
       bottom,
       sample_var,
+      sample_mean,
       eps,
       x,
       N,
+      out,
     )
 
 
@@ -263,31 +265,47 @@ def batchnorm_backward(dout, cache):
   - dbeta: Gradient with respect to shift parameter beta, of shape (D,)
   """
   dx, dgamma, dbeta = None, None, None
-  xhat, gamma, top, bottom, sample_var, eps, x, N = cache
+  xhat, gamma, top, bottom, sample_var, sample_mean, eps, x, N, out = cache
   #############################################################################
   # TODO: Implement the backward pass for batch normalization. Store the      #
   # results in the dx, dgamma, and dbeta variables.                           #
-  #############################################################################
+  ############################################################################
+  # dbeta = np.sum(dout, axis=0)
+  # dgamma = np.sum(xhat * dout, axis=0)
+  #
+  # # Break apart dxhat
+  # dxhat = dout * gamma
+  #
+  # dtop = dxhat / bottom
+  # dbottom = dxhat * -1 * top / np.square(bottom)
+  #
+  # # Break apart dtop
+  # dx = dtop
+  # dx -= np.sum((dtop / N), axis = 1)[:, np.newaxis]
+  #
+  # # Break apart dbottom
+  # dbottom_rooted = dbottom / (2 * np.sqrt(sample_var + eps))
+  #
+  # dx += dbottom_rooted * 2 * (x - eps)/ N
 
 
 
-  dbeta = np.sum(dout, axis=0)
-  dgamma = np.sum(xhat * dout, axis=0)
+  xc = x - sample_mean
+  std = bottom
+  xn = xhat
 
-  # Break apart dxhat
-  dxhat = dout * gamma
+  N = x.shape[0]
+  dbeta = dout.sum(axis=0)
+  dgamma = np.sum(xn * dout, axis=0)
 
-  dtop = dxhat / bottom
-  dbottom = dxhat * -1 * top / np.square(bottom)
+  dxn = gamma * dout
+  dxc = dxn / std
+  dstd = -np.sum((dxn * xc) / (std * std), axis=0)
+  dvar = 0.5 * dstd / std
+  dxc += (2.0 / N) * xc * dvar
+  dmu = np.sum(dxc, axis=0)
+  dx = dxc - dmu / N
 
-  # Break apart dtop
-  dx = dtop
-  dx -= np.sum((dtop / N), axis = 1)[:, np.newaxis]
-
-  # Break apart dbottom
-  dbottom_rooted = dbottom / (2 * np.sqrt(sample_var + eps))
-
-  dx += dbottom_rooted * 2 * (x - eps)/ N
 
   #############################################################################
   #                             END OF YOUR CODE                              #
